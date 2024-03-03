@@ -26,6 +26,21 @@ import { Input } from '#/components/ui/input';
 import { Product } from '@prisma/client';
 import { Card } from '#/components/ui/card';
 import { Badge } from '#/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '#/components/ui/dialog';
+
+// const colors = {
+//   Capsule: '#FF4500',
+//   Tablet: '#FFD700',
+//   Syrup: '#00BFFF',
+//   Injection: '#FF69B4',
+// };
 
 export default function Home() {
   const { data, isLoading } = trpc.product.list.useQuery();
@@ -34,6 +49,7 @@ export default function Home() {
 
   // States
   const [open, setOpen] = useState(false);
+  const [summary, setSummary] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [items, setItems] = useState<
     {
@@ -83,10 +99,18 @@ export default function Home() {
     <MainLayout
       bottom={
         <>
-          <div className="flex justify-end px-4 md:px-0">
+          <div className="flex items-center justify-end px-4 md:px-0">
             <h1 className="text-lg font-bold">
               Total: ₹{(total || 0).toFixed(2)}
             </h1>
+            <Button
+              variant={'link'}
+              onClick={() => {
+                setSummary(true);
+              }}
+            >
+              Summary
+            </Button>
           </div>
           <div className="mt-4 flex items-center justify-between gap-4 p-4 border-1 rounded-t-xl drop-shadow-xl bg-neutral-50 px-4">
             <Popover open={open} onOpenChange={setOpen}>
@@ -118,7 +142,10 @@ export default function Home() {
                           setOpen(false);
                         }}
                       >
-                        {product.name}
+                        <Badge>
+                          {product.category.substring(0, 3).toLowerCase()}
+                        </Badge>
+                        <span className="ml-2">{product.name}</span>
                         <CheckIcon
                           className={cn(
                             'ml-auto h-4 w-4',
@@ -224,6 +251,50 @@ export default function Home() {
           ))}
         </AnimatePresence>
       </div>
+
+      <Dialog
+        open={summary}
+        onOpenChange={() => {
+          setSummary(!summary);
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Summary</DialogTitle>
+            <DialogDescription>View order summary</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {items.map((item) => (
+              <div
+                className="grid grid-cols-2 items-center gap-4"
+                key={item.product.id}
+              >
+                <div>
+                  <h1 className="text-lg font-bold">{item.product.name}</h1>
+                  <p>
+                    ₹
+                    {(
+                      (item.product.price / item.product.quantity) *
+                      item.quantity
+                    ).toFixed(2)}
+                    <span className="text-sm text-neutral-500">
+                      {' '}
+                      ({item.quantity} x ₹
+                      {(item.product.price / item.product.quantity).toFixed(2)})
+                    </span>
+                  </p>
+                </div>
+                <div>
+                  <Badge color="primary">{item.quantity}</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 }

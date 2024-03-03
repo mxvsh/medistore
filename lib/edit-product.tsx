@@ -30,6 +30,7 @@ import {
 import { trpc } from './trpc/client';
 import { toast } from 'sonner';
 import { Product } from '@prisma/client';
+import { categories } from './category';
 
 function EditProductButton({ product }: { product: Product }) {
   const utils = trpc.useUtils();
@@ -140,13 +141,11 @@ function EditProductButton({ product }: { product: Product }) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {['Capsule', 'Tablet', 'Syrup', 'Injection'].map(
-                          (category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ),
-                        )}
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

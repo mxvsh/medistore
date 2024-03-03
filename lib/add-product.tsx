@@ -29,6 +29,7 @@ import {
 } from '#/components/ui/select';
 import { trpc } from './trpc/client';
 import { toast } from 'sonner';
+import { categories } from './category';
 
 function AddProductButton() {
   const form = useForm();
@@ -129,13 +130,11 @@ function AddProductButton() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {['Capsule', 'Tablet', 'Syrup', 'Injection'].map(
-                          (category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
-                            </SelectItem>
-                          ),
-                        )}
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

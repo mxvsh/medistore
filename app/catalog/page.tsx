@@ -7,10 +7,9 @@ import AddProductButton from '#/lib/add-product';
 import { Card } from '#/components/ui/card';
 import { trpc } from '#/lib/trpc/client';
 import { Loader2 } from 'lucide-react';
-import { HiOutlinePencil } from 'react-icons/hi';
-import { Button } from '#/components/ui/button';
 import { MainLayout } from '#/lib/layout';
 import EditProductButton from '#/lib/edit-product';
+import { Badge } from '#/components/ui/badge';
 
 function Page() {
   const [q, setQ] = useState('');
@@ -59,8 +58,19 @@ function Page() {
             className="p-4 flex items-center justify-between"
           >
             <div>
-              <h2 className="text-lg">{product.name}</h2>
-              <h1 className="font-bold text-lg">₹{product.price}</h1>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg">{product.name}</h2>
+                <Badge variant={'outline'}>{product.category}</Badge>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <h1 className="font-bold text-lg">
+                  ₹{product.price.toFixed(2)}
+                </h1>
+                <span className="text-neutral-500 text-sm">
+                  for {product.quantity} item
+                </span>
+              </div>
             </div>
             <div>
               {/* @ts-ignore */}
