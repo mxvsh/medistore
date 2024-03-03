@@ -25,6 +25,7 @@ import { cn } from '#/lib/utils';
 import { Input } from '#/components/ui/input';
 import { Product } from '@prisma/client';
 import { Card } from '#/components/ui/card';
+import { Badge } from '#/components/ui/badge';
 
 export default function Home() {
   const { data, isLoading } = trpc.product.list.useQuery();
@@ -83,9 +84,11 @@ export default function Home() {
       bottom={
         <>
           <div className="flex justify-end px-4 md:px-0">
-            <h1 className="text-lg font-bold">Total: ₹{total.toFixed(2)}</h1>
+            <h1 className="text-lg font-bold">
+              Total: ₹{(total || 0).toFixed(2)}
+            </h1>
           </div>
-          <div className="mt-4 flex items-center justify-between gap-4 p-4 border-1 rounded-t-xl drop-shadow-xl bg-neutral-50 px-4 md:px-0">
+          <div className="mt-4 flex items-center justify-between gap-4 p-4 border-1 rounded-t-xl drop-shadow-xl bg-neutral-50 px-4">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -97,7 +100,7 @@ export default function Home() {
                   {selectedProduct?.name || 'Select product'}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
+              <PopoverContent className="w-[250px] p-0">
                 <Command>
                   <CommandInput
                     placeholder="Search product..."

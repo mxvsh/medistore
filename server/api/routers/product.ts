@@ -29,4 +29,27 @@ export const product = createTRPCRouter({
         },
       });
     }),
+  update: publicProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        price: z.number(),
+        quantity: z.number(),
+        category: z.string(),
+      }),
+    )
+    .mutation(({ input, ctx }) => {
+      return ctx.db.product.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          name: input.name,
+          price: input.price,
+          quantity: input.quantity,
+          category: input.category,
+        },
+      });
+    }),
 });
