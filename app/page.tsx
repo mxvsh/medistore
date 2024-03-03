@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '#/components/ui/popover';
-import { HiIdentification, HiOutlineTrash } from 'react-icons/hi';
+import { HiOutlineTrash } from 'react-icons/hi';
 import { useMemo, useRef, useState } from 'react';
 import { CheckIcon } from 'lucide-react';
 import { cn } from '#/lib/utils';
@@ -33,7 +33,7 @@ export default function Home() {
 
   // States
   const [open, setOpen] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [items, setItems] = useState<
     {
       quantity: number;
@@ -47,11 +47,7 @@ export default function Home() {
       return;
     }
 
-    const product = data?.find(
-      (product) => product.id.toString() === selectedProductId,
-    );
-
-    if (!product) {
+    if (!selectedProduct) {
       return;
     }
 
@@ -60,7 +56,7 @@ export default function Home() {
       ...prev,
       {
         quantity: parseInt(quantity, 10),
-        product,
+        product: selectedProduct,
       },
     ]);
   }
@@ -75,21 +71,21 @@ export default function Home() {
   }, [items]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <MainLayout>Loading...</MainLayout>;
   }
 
   if (!data) {
-    return <div>No data</div>;
+    return <MainLayout>No data</MainLayout>;
   }
 
   return (
     <MainLayout
       bottom={
         <>
-          <div className="flex justify-end">
+          <div className="flex justify-end px-4 md:px-0">
             <h1 className="text-lg font-bold">Total: ₹{total.toFixed(2)}</h1>
           </div>
-          <div className="mt-4 flex items-center justify-between gap-4 p-4 border-1 rounded-t-xl drop-shadow-xl bg-neutral-50">
+          <div className="mt-4 flex items-center justify-between gap-4 p-4 border-1 rounded-t-xl drop-shadow-xl bg-neutral-50 px-4 md:px-0">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -98,12 +94,7 @@ export default function Home() {
                   aria-expanded={open}
                   className="w-[200px] justify-between"
                 >
-                  {selectedProductId
-                    ? data.find(
-                        (product) =>
-                          product.id.toString() === selectedProductId,
-                      )?.name
-                    : 'Select product...'}
+                  {selectedProduct?.name || 'Select product'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
@@ -113,13 +104,14 @@ export default function Home() {
                     className="h-9"
                   />
                   <CommandEmpty>No product found.</CommandEmpty>
-                  <CommandGroup>
+                  <CommandGroup className="max-h-72 overflow-auto">
                     {data.map((product) => (
                       <CommandItem
                         key={product.id}
-                        value={product.id.toString()}
-                        onSelect={(currentValue) => {
-                          setSelectedProductId(currentValue);
+                        value={product.name}
+                        onSelect={() => {
+                          // @ts-ignore
+                          setSelectedProduct(product);
                           setOpen(false);
                         }}
                       >
@@ -127,7 +119,7 @@ export default function Home() {
                         <CheckIcon
                           className={cn(
                             'ml-auto h-4 w-4',
-                            selectedProductId === product.id.toString()
+                            selectedProduct?.id === product.id
                               ? 'opacity-100'
                               : 'opacity-0',
                           )}
@@ -142,7 +134,7 @@ export default function Home() {
               ref={qRef}
               placeholder="Quantity"
               type="number"
-              className="w-40"
+              className="w-32"
             />
             <Button color="primary" onClick={handleSubmit}>
               Submit
@@ -150,18 +142,20 @@ export default function Home() {
           </div>
         </>
       }
+      top={
+        <Header
+          actions={
+            <Link href="/catalog">
+              <Button color="primary">Catalog</Button>
+            </Link>
+          }
+        />
+      }
     >
-      <Header
-        actions={
-          <Link href="/catalog">
-            <Button color="primary">Catalog</Button>
-          </Link>
-        }
-      />
       <div className="mt-4 space-y-4">
         {items.length === 0 && (
           <div className="flex items-center justify-center">
-            <p className="text-lg font-bold">No items</p>
+            <p className="text-lg">No items</p>
           </div>
         )}
         <AnimatePresence>
@@ -175,7 +169,11 @@ export default function Home() {
             >
               <Card className="flex items-center justify-between p-4">
                 <div>
-                  <h1 className="font-bold">{item.product.name}</h1>
+                  <h1 className="text-sm text-muted-foreground">
+                    MRP ₹{item.product.price.toFixed(2)}
+                  </h1>
+
+                  <h1 className="text-lg font-bold">{item.product.name}</h1>
                   <p>
                     ₹
                     {(
@@ -185,7 +183,7 @@ export default function Home() {
                     <span className="text-sm text-neutral-500">
                       {' '}
                       ({item.quantity} x ₹
-                      {item.product.price / item.product.quantity})
+                      {(item.product.price / item.product.quantity).toFixed(2)})
                     </span>
                   </p>
                 </div>

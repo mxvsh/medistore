@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Header from '#/lib/header';
 import { Input } from '#/components/ui/input';
 import AddProductButton from '#/lib/add-product';
-import { Card, CardContent, CardHeader } from '#/components/ui/card';
-import { Product } from '@prisma/client';
+import { Card } from '#/components/ui/card';
 import { trpc } from '#/lib/trpc/client';
 import { Loader2 } from 'lucide-react';
+import { HiOutlinePencil } from 'react-icons/hi';
+import { Button } from '#/components/ui/button';
 
 function Page() {
   const { data: products, isLoading } = trpc.product.list.useQuery();
@@ -32,9 +33,19 @@ function Page() {
             </div>
           )}
           {products?.map((product) => (
-            <Card key={product.id} className="p-4">
-              <h2 className="text-lg">{product.name}</h2>
-              <h1 className="font-bold text-lg">₹{product.price}</h1>
+            <Card
+              key={product.id}
+              className="p-4 flex items-center justify-between"
+            >
+              <div>
+                <h2 className="text-lg">{product.name}</h2>
+                <h1 className="font-bold text-lg">₹{product.price}</h1>
+              </div>
+              <div>
+                <Button variant={'outline'}>
+                  <HiOutlinePencil />
+                </Button>
+              </div>
             </Card>
           ))}
         </div>

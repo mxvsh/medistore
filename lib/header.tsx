@@ -10,7 +10,7 @@ type Props = {
 };
 function Header({ actions, back }: Props) {
   return (
-    <div className="flex items-center py-4 border-b justify-between">
+    <div className="flex items-center py-4 border-b justify-between px-4 md:px-0">
       {back ? (
         <Link href="/">
           <Button variant="ghost">

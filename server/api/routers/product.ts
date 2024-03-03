@@ -4,7 +4,11 @@ import { createTRPCRouter, publicProcedure } from '#/server/api/trpc';
 
 export const product = createTRPCRouter({
   list: publicProcedure.query(({ ctx }) => {
-    return ctx.db.product.findMany();
+    return ctx.db.product.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }),
   create: publicProcedure
     .input(
