@@ -18,13 +18,7 @@ function Header({ actions, back }: Props) {
           </Button>
         </Link>
       ) : (
-        <Image
-          alt="logo"
-          src="/logo.png"
-          width={40}
-          height={40}
-          className="rounded-xl"
-        />
+        <h1 className="text-2xl font-semibold">Shahi Medical</h1>
       )}
       <div className="flex-1"></div>
       <div className="flex items-center w-40% gap-4">{actions}</div>

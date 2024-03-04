@@ -20,7 +20,7 @@ import {
 } from '#/components/ui/popover';
 import { HiOutlineTrash } from 'react-icons/hi';
 import { useMemo, useRef, useState } from 'react';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, Loader2 } from 'lucide-react';
 import { cn } from '#/lib/utils';
 import { Input } from '#/components/ui/input';
 import { Product } from '@prisma/client';
@@ -34,13 +34,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog';
-
-// const colors = {
-//   Capsule: '#FF4500',
-//   Tablet: '#FFD700',
-//   Syrup: '#00BFFF',
-//   Injection: '#FF69B4',
-// };
 
 export default function Home() {
   const { data, isLoading } = trpc.product.list.useQuery();
@@ -81,14 +74,21 @@ export default function Home() {
   const total = useMemo(() => {
     let total = 0;
     items.forEach((item) => {
-      total += (item.product.price / item.product.quantity) * item.quantity;
+      total +=
+        (item.product.price / item.product.quantity) * (item.quantity || 0);
     });
 
     return total;
   }, [items]);
 
   if (isLoading) {
-    return <MainLayout>Loading...</MainLayout>;
+    return (
+      <MainLayout>
+        <div className="flex justify-center items-center pt-12">
+          <Loader2 className="animate-spin h-8 w-8" />
+        </div>
+      </MainLayout>
+    );
   }
 
   if (!data) {
@@ -166,9 +166,24 @@ export default function Home() {
               type="number"
               className="w-32"
             />
-            <Button color="primary" onClick={handleSubmit}>
-              Submit
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button color="primary" onClick={handleSubmit}>
+                Submit
+              </Button>
+              <Button
+                variant={'outline'}
+                onClick={() => {
+                  const cnf = confirm(
+                    'Are you sure you want to clear the cart?',
+                  );
+                  if (cnf) {
+                    setItems([]);
+                  }
+                }}
+              >
+                Clear
+              </Button>
+            </div>
           </div>
         </>
       }
@@ -189,66 +204,74 @@ export default function Home() {
           </div>
         )}
         <AnimatePresence>
-          {items.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Card className="flex items-center justify-between p-4">
-                <div>
-                  <h1 className="text-sm text-muted-foreground">
-                    MRP ₹{item.product.price.toFixed(2)}
-                  </h1>
+          {items.map((item, index) => {
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card className="flex items-center p-4 gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <h1>{item.product.category}</h1>
+                      <span>•</span>
+                      <h1>MRP ₹{item.product.price.toFixed(2)}</h1>
+                    </div>
 
-                  <h1 className="text-lg font-bold">{item.product.name}</h1>
-                  <p>
-                    ₹
-                    {(
-                      (item.product.price / item.product.quantity) *
-                      item.quantity
-                    ).toFixed(2)}
-                    <span className="text-sm text-neutral-500">
-                      {' '}
-                      ({item.quantity} x ₹
-                      {(item.product.price / item.product.quantity).toFixed(2)})
-                    </span>
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    defaultValue={item.quantity}
-                    className="w-20 appearance-none"
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setItems((prev) =>
-                        prev.map((i) => {
-                          if (i.product.id === item.product.id) {
-                            return {
-                              ...i,
-                              quantity: parseInt(value, 10),
-                            };
-                          }
-                          return i;
-                        }),
-                      );
-                    }}
-                  />
-                  <HiOutlineTrash
-                    size={20}
-                    onClick={() => {
-                      const copy = [...items];
-                      copy.splice(index, 1);
-                      setItems(copy);
-                    }}
-                  />
-                </div>
-              </Card>
-            </motion.div>
-          ))}
+                    <h1 className="text-lg font-bold">{item.product.name}</h1>
+                    <p>
+                      ₹
+                      {(
+                        (item.product.price / item.product.quantity) *
+                        (item.quantity || 0)
+                      ).toFixed(2)}
+                      <span className="text-sm text-neutral-500">
+                        {' '}
+                        ({item.quantity || 0} x ₹
+                        {(item.product.price / item.product.quantity).toFixed(
+                          2,
+                        )}
+                        )
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex-1" />
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={item.quantity}
+                      className="w-20 appearance-none"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setItems((prev) =>
+                          prev.map((i) => {
+                            if (i.product.id === item.product.id) {
+                              return {
+                                ...i,
+                                quantity: parseInt(value, 10),
+                              };
+                            }
+                            return i;
+                          }),
+                        );
+                      }}
+                    />
+                    <HiOutlineTrash
+                      size={20}
+                      onClick={() => {
+                        const copy = [...items];
+                        copy.splice(index, 1);
+                        setItems(copy);
+                      }}
+                    />
+                  </div>
+                </Card>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
 
@@ -266,7 +289,7 @@ export default function Home() {
           <div className="grid gap-4 py-4">
             {items.map((item) => (
               <div
-                className="grid grid-cols-2 items-center gap-4"
+                className="flex items-center justify-between"
                 key={item.product.id}
               >
                 <div>
@@ -284,8 +307,11 @@ export default function Home() {
                     </span>
                   </p>
                 </div>
+                <div className="flex-1" />
                 <div>
-                  <Badge color="primary">{item.quantity}</Badge>
+                  <Badge color="primary" className="text-lg">
+                    {item.quantity}
+                  </Badge>
                 </div>
               </div>
             ))}
