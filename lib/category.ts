@@ -6,4 +6,8 @@ export const categories = [
   'Drop',
   'Ointment',
   'Lotion',
+  'Liquid',
+  'Powder',
+  'Suspension',
+  'Box',
 ];

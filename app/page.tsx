@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
 } from '#/components/ui/popover';
 import { HiOutlineTrash } from 'react-icons/hi';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckIcon, Loader2 } from 'lucide-react';
 import { cn } from '#/lib/utils';
 import { Input } from '#/components/ui/input';
@@ -61,15 +61,25 @@ export default function Home() {
       return;
     }
 
+    const newItem = [
+      ...items,
+      { quantity: parseInt(quantity, 10), product: selectedProduct },
+    ];
     // @ts-ignore
-    setItems((prev) => [
-      ...prev,
-      {
-        quantity: parseInt(quantity, 10),
-        product: selectedProduct,
-      },
-    ]);
+    setItems(newItem);
+    updateLocalStorage(newItem);
   }
+
+  function updateLocalStorage(value: typeof items) {
+    localStorage.setItem('cart', JSON.stringify(value));
+  }
+
+  useEffect(() => {
+    const local = localStorage.getItem('cart');
+    if (local) {
+      setItems(JSON.parse(local));
+    }
+  }, []);
 
   const total = useMemo(() => {
     let total = 0;
@@ -142,7 +152,7 @@ export default function Home() {
                           setOpen(false);
                         }}
                       >
-                        <Badge>
+                        <Badge className="w-12 items-center">
                           {product.category.substring(0, 3).toLowerCase()}
                         </Badge>
                         <span className="ml-2">{product.name}</span>
@@ -178,6 +188,7 @@ export default function Home() {
                   );
                   if (cnf) {
                     setItems([]);
+                    localStorage.removeItem('cart');
                   }
                 }}
               >
@@ -216,30 +227,31 @@ export default function Home() {
                 <Card className="flex items-center p-4 gap-4">
                   <div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <h1>{item.product.category}</h1>
-                      <span>•</span>
-                      <h1>MRP ₹{item.product.price.toFixed(2)}</h1>
+                      <Badge variant={'outline'}>{item.product.category}</Badge>
                     </div>
 
-                    <h1 className="text-lg font-bold">{item.product.name}</h1>
-                    <p>
+                    <h1 className="text-lg font-bold mt-1">
+                      {item.product.name}
+                    </h1>
+                    <h5>
                       ₹
                       {(
                         (item.product.price / item.product.quantity) *
                         (item.quantity || 0)
-                      ).toFixed(2)}
-                      <span className="text-sm text-neutral-500">
-                        {' '}
-                        ({item.quantity || 0} x ₹
-                        {(item.product.price / item.product.quantity).toFixed(
-                          2,
-                        )}
-                        )
+                      ).toFixed(2)}{' '}
+                      <span className="text-xs text-neutral-500">
+                        ₹{item.product.price.toFixed(2)} for{' '}
+                        {item.product.quantity} unit
+                        {item.product.quantity > 1 ? 's' : ''}
                       </span>
-                    </p>
+                    </h5>
                   </div>
                   <div className="flex-1" />
                   <div className="flex items-center gap-2">
+                    <Badge color="primary">
+                      ₹{(item.product.price / item.product.quantity).toFixed(2)}
+                    </Badge>
+                    <span className="text-sm text-neutral-500">x</span>
                     <Input
                       type="number"
                       value={item.quantity}
@@ -265,6 +277,7 @@ export default function Home() {
                         const copy = [...items];
                         copy.splice(index, 1);
                         setItems(copy);
+                        updateLocalStorage(copy);
                       }}
                     />
                   </div>

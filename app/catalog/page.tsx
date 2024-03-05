@@ -10,6 +10,8 @@ import { Loader2 } from 'lucide-react';
 import { MainLayout } from '#/lib/layout';
 import EditProductButton from '#/lib/edit-product';
 import { Badge } from '#/components/ui/badge';
+import { Button } from '#/components/ui/button';
+import { HiDownload, HiOutlineDownload } from 'react-icons/hi';
 
 function Page() {
   const [q, setQ] = useState('');
@@ -26,7 +28,7 @@ function Page() {
       );
     }
 
-    return data;
+    return data.sort((a, b) => a.name.localeCompare(b.name));
   }, [q, data]);
 
   return (
@@ -36,6 +38,25 @@ function Page() {
           back
           actions={
             <>
+              <span className="text-sm text-right">
+                {data?.length} products
+              </span>
+              <Button
+                variant={'outline'}
+                onClick={() => {
+                  // download JSON
+                  const element = document.createElement('a');
+                  const file = new Blob([JSON.stringify(data)], {
+                    type: 'text/plain',
+                  });
+                  element.href = URL.createObjectURL(file);
+                  element.download = `products-${new Date().toISOString()}.json`;
+                  document.body.appendChild(element); // Required for this to work in FireFox
+                  element.click();
+                }}
+              >
+                <HiOutlineDownload />
+              </Button>
               <Input
                 placeholder="Search"
                 onChange={(e) => setQ(e.target.value)}
