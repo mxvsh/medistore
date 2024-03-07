@@ -242,11 +242,15 @@ export default function Home() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Badge
                         variant={'outline'}
-                        style={{
-                          backgroundColor: color,
-                          color: 'white',
-                          borderWidth: 0,
-                        }}
+                        style={
+                          color
+                            ? {
+                                backgroundColor: color,
+                                color: 'white',
+                                borderWidth: 0,
+                              }
+                            : {}
+                        }
                       >
                         {item.product.category}
                       </Badge>
