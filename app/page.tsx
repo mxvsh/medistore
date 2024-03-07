@@ -34,6 +34,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#/components/ui/dialog';
+import { categories } from '#/lib/category';
+
+const colors: Record<(typeof categories)[number], string> = {
+  Capsule: '#f59e0b',
+  Tablet: '#a78bfa',
+  Syrup: '#f472b6',
+  Injection: '#34d399',
+  Cream: '#f97316',
+  Drops: '#93c5fd',
+  Ointment: '#fbbf24',
+};
 
 export default function Home() {
   const { data, isLoading } = trpc.product.list.useQuery();
@@ -152,7 +163,7 @@ export default function Home() {
                           setOpen(false);
                         }}
                       >
-                        <Badge className="w-12 items-center">
+                        <Badge className="flex w-12 justify-center">
                           {product.category.substring(0, 3).toLowerCase()}
                         </Badge>
                         <span className="ml-2">{product.name}</span>
@@ -216,6 +227,8 @@ export default function Home() {
         )}
         <AnimatePresence>
           {items.map((item, index) => {
+            const color = colors[item.product.category as any];
+
             return (
               <motion.div
                 key={index}
@@ -227,7 +240,16 @@ export default function Home() {
                 <Card className="flex items-center p-4 gap-4">
                   <div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Badge variant={'outline'}>{item.product.category}</Badge>
+                      <Badge
+                        variant={'outline'}
+                        style={{
+                          backgroundColor: color,
+                          color: 'white',
+                          borderWidth: 0,
+                        }}
+                      >
+                        {item.product.category}
+                      </Badge>
                     </div>
 
                     <h1 className="text-lg font-bold mt-1">
