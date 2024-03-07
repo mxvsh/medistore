@@ -37,10 +37,10 @@ import {
 import { categories } from '#/lib/category';
 
 const colors: Record<(typeof categories)[number], string> = {
-  Capsule: '#f59e0b',
+  Capsule: '#8ba7fa',
   Tablet: '#a78bfa',
-  Syrup: '#f472b6',
-  Injection: '#34d399',
+  Syrup: '#34d399',
+  Injection: '#f65765',
   Cream: '#f97316',
   Drops: '#93c5fd',
   Ointment: '#fbbf24',
@@ -181,6 +181,7 @@ export default function Home() {
                 </Command>
               </PopoverContent>
             </Popover>
+
             <Input
               ref={qRef}
               placeholder="Quantity"
